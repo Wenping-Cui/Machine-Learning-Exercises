@@ -8,36 +8,38 @@
 	"buffers":
 	[
 		{
+			"contents": "# This is the implication of DQN(Mnih et al 2015)\n# This DQN Agent Software is Based upon the following  Jaromir Janisch  source: \n# https://jaromiru.com/2016/10/03/lets-make-a-dqn-implementation/\n# requires keras with tensorflow as backend.\n\n\"\"\"\nCreated on Dec 12  2018\n@author: Wenping Cui\n\"\"\"\n# ==============================================================================\nimport random\nimport gym\nimport numpy as np\nfrom collections import deque\nfrom keras.models import Sequential\nfrom keras.layers import Dense, Activation, Flatten, Convolution2D, Permute\nfrom keras.optimizers import Adam\nimport keras.backend as K\nK.tensorflow_backend._get_available_gpus()\nclass AstraiAgent:\n    def __init__(self, INPUT_SHAPE, action_size):\n        self.INPUT_SHAPE = INPUT_SHAPE\n        self.action_size = action_size\n        self.memory = deque(maxlen=50000)\n        self.WINDOW_LENGTH=4\n        self.input_shape= (self.WINDOW_LENGTH,) + self.INPUT_SHAPE\n        # parameters are from Extended Data Table 1 at Mnih et al 2015\n        self.gamma = 0.95    \t# discount rate\n        self.epsilon = 1.0  \t# exploration rate\n        self.epsilon_min = 0.1\n        self.epsilon_decay = 0.995\n        self.learning_rate = 0.0025\n        self.model = self._build_model()\n\n    def _build_model(self):\n        # Neural Net for Deep-Q learning Model\n        model = Sequential()\n        model.add(Permute((2, 3, 1), input_shape=input_shape))\n        model.add(Convolution2D(32, (8, 8), strides=(4, 4)))\n        model.add(Activation('relu'))\n        model.add(Convolution2D(64, (4, 4), strides=(2, 2)))\n        model.add(Activation('relu'))\n        model.add(Convolution2D(64, (3, 3), strides=(1, 1)))\n        model.add(Activation('relu'))\n        model.add(Flatten())\n        model.add(Dense(512))\n        model.add(Activation('relu'))\n        model.add(Dense(self.action_size))\n        model.add(Activation('linear'))\n        print (model.summary())\n        return model\n\n    def remember(self, state, action, reward, next_state, done):\n        self.memory.append((state, action, reward, next_state, done))\n\n    def act(self, state):\n        if np.random.rand() <= self.epsilon:\n            return random.randrange(self.action_size)\n        act_values = self.model.predict(state)\n        return np.argmax(act_values[0])  # returns action\n\n    def replay(self, batch_size):\n        minibatch = random.sample(self.memory, batch_size)\n        states, targets_f = [], []\n        for state, action, reward, next_state, done in minibatch:\n            target = reward\n            if not done:\n                target = (reward + self.gamma *np.amax(self.model.predict(next_state)[0]))\n            target_f = self.model.predict(state)\n            target_f[0][action] = target \n            # Filtering out states and targets for training\n            states.append(state[0])\n            targets_f.append(target_f[0])\n        history = self.model.fit(np.array(states), np.array(targets_f), epochs=1, verbose=0)\n        # Keeping track of loss\n        loss = history.history['loss'][0]\n        if self.epsilon > self.epsilon_min:\n            self.epsilon *= self.epsilon_decay\n        return loss\n\n    def load(self, name):\n        self.model.load_weights(name)\n\n    def save(self, name):\n        self.model.save_weights(name)\n\n\nif __name__ == \"__main__\":\n    env = gym.make('Assault-v0')\n    state_size = env.observation_space.shape[0]\n    action_size = env.action_space.n\n    agent = DQNAgent(state_size, action_size)\n    done = False\n    batch_size = 32\n\n    for e in range(EPISODES):\n        state = env.reset()\n        print (state.shape)\n        state = np.reshape(state, [1, state_size])\n        print (state)\n        for time in range(500):\n            # env.render()\n            action = agent.act(state)\n            next_state, reward, done, _ = env.step(action)\n            reward = reward if not done else -10\n            next_state = np.reshape(next_state, [1, state_size])\n            agent.remember(state, action, reward, next_state, done)\n            state = next_state\n            if done:\n                print(\"episode: {}/{}, score: {}, e: {:.2}\"\n                      .format(e, EPISODES, time, agent.epsilon))\n                break\n            if len(agent.memory) > batch_size:\n                loss = agent.replay(batch_size)\n                # Logging training loss every 10 timesteps\n                if time % 10 == 0:\n                    print(\"episode: {}/{}, time: {}, loss: {:.4f}\"\n                        .format(e, EPISODES, time, loss))  \n        if e % 10 == 0:\n             agent.save(\"save/Assault-dqn.h5\")\n                     Array_E.append(e)",
 			"file": "dqn_batch_assault.py",
+			"file_size": 4652,
+			"file_write_time": 131896720950000000,
 			"settings":
 			{
-				"buffer_size": 4614,
+				"buffer_size": 4652,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/cuiw/Documents/Python-Package/Eco_functions/Eco_function/Model_cavity.py",
+			"settings":
+			{
+				"buffer_size": 11830,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "DQN_functions/dqn_CNN.py",
+			"settings":
+			{
+				"buffer_size": 3477,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "cliff_env.py",
+			"file": "dqn_cartpole_torch.py",
 			"settings":
 			{
-				"buffer_size": 1174,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "dqn_cliffwalk.py",
-			"settings":
-			{
-				"buffer_size": 3581,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "dqn_cartpole.py",
-			"settings":
-			{
-				"buffer_size": 4141,
+				"buffer_size": 4275,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -73,8 +75,18 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
+	"expanded_folders":
+	[
+		"/home/cuiw/Dropbox/DQN"
+	],
 	"file_history":
 	[
+		"/home/cuiw/Dropbox/DQN/dqn_assault.py",
+		"/home/cuiw/Dropbox/DQN/dqn_cliffwalk.py",
+		"/home/cuiw/Dropbox/DQN/cliff_env.py",
+		"/home/cuiw/Dropbox/DQN/torch_assault.py",
+		"/home/cuiw/Dropbox/DQN/dqn_cartpole_torch.py",
+		"/home/cuiw/Dropbox/DQN/dqn_cartpole.py",
 		"/Users/cuiw/Dropbox/DQN/reinforcement_q_learning.py",
 		"/Users/cuiw/Dropbox/DQN/rl/agents/dqn.py",
 		"/Users/cuiw/Dropbox/Lecture/EC503-FALL2018/DQN/reinforcement_q_learning.py",
@@ -118,7 +130,7 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -127,77 +139,117 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4614,
+						"buffer_size": 4652,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								197,
-								51
+								0,
+								0
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Python/Python.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "cliff_env.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1174,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								33,
-								33
-							]
-						],
-						"settings":
-						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
 							"syntax": "Packages/Python/Python.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 585.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 3,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "dqn_cliffwalk.py",
+					"buffer": 1,
+					"file": "/home/cuiw/Documents/Python-Package/Eco_functions/Eco_function/Model_cavity.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3581,
+						"buffer_size": 11830,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								200,
-								200
+								0,
+								0
 							]
 						],
 						"settings":
 						{
+							"incomplete_sync": null,
+							"syntax": "Packages/Python/Python.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 630.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "DQN_functions/dqn_CNN.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3477,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1795,
+								1795
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 90.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "dqn_cartpole_torch.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4275,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
 							"syntax": "Packages/Python/Python.sublime-syntax",
 							"translate_tabs_to_spaces": false
 						},
@@ -205,37 +257,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "dqn_cartpole.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4141,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								58,
-								58
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -273,6 +295,10 @@
 	},
 	"menu_visible": true,
 	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.sftp":
 	{
 		"height": 0.0
 	},
@@ -318,7 +344,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 150.0,
+	"side_bar_width": 432.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

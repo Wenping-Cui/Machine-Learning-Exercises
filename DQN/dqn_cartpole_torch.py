@@ -11,10 +11,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 import pickle
 import os
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-# The GPU id to use, usually either "0" or "1"
-os.environ["CUDA_VISIBLE_DEVICES"]="1" 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class _model_NN(nn.Module):
 	def __init__(self, state_size, action_size):
 		super(_model_NN, self).__init__()
@@ -36,7 +32,7 @@ class DQNAgent:
 		self.epsilon = 1.0  # exploration rate
 		self.epsilon_min = 0.01
 		self.epsilon_decay = 0.995
-		self.learning_rate = 0.001
+		self.learning_rate = 0.01
 		self.model = _model_NN(state_size, action_size)
 		self.model
 
@@ -57,6 +53,7 @@ class DQNAgent:
 		optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 		optimizer.zero_grad()
 		criterion= nn.MSELoss()
+		#criterion= nn.SmoothL1Loss()
 		#criterion= nn.L1Loss()
 		states, targets_f = [], []
 		for state, action, reward, next_state, done in minibatch:

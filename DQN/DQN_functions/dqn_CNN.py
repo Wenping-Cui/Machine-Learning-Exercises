@@ -1,4 +1,3 @@
-
 # This is the implication of DQN(Mnih et al 2015)
 # This DQN Agent Software is Based upon the following  Jaromir Janisch  source: 
 # https://jaromiru.com/2016/10/03/lets-make-a-dqn-implementation/
@@ -15,7 +14,6 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten, Convolution2D, Permute
 import keras.optimizers as opt
 import keras.backend as K
-
 class AstraiAgent:
     def __init__(self, INPUT_SHAPE, action_size,WINDOW_LENGTH):
         self.INPUT_SHAPE = INPUT_SHAPE
@@ -24,11 +22,11 @@ class AstraiAgent:
         self.WINDOW_LENGTH=WINDOW_LENGTH
         self.input_shape= (self.WINDOW_LENGTH,) + self.INPUT_SHAPE
         # parameters are from Extended Data Table 1 at Mnih et al 2015
-        self.gamma = 0.99  	# discount rate
+        self.gamma = 0.95  	# discount rate
         self.epsilon = 1.0  	# exploration rate
-        self.epsilon_min = 0.1
+        self.epsilon_min = 0.05
         self.epsilon_decay = 0.999
-        self.learning_rate = 0.0025
+        self.learning_rate = 0.001
         self.model = self._build_model()
         self.target_model = self._build_model()
 
@@ -47,8 +45,8 @@ class AstraiAgent:
         model.add(Activation('relu'))
         model.add(Dense(self.action_size))
         model.add(Activation('linear'))
-        opt.RMSprop(lr=self.learning_rate, epsilon=0.01)
-        model.compile(optimizer='rmsprop',loss='mse')
+        optimizer=opt.Adam(lr=self.learning_rate)
+        model.compile(optimizer=optimizer,loss='mse')
         return model
 
     def remember(self, state, action, reward, next_state, done):
